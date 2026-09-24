@@ -4,7 +4,7 @@ index.html
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Harbor – Simple Website with Login</title>
+<title>Harbor – Simple Website with Login and Enquiry</title>
 <style>
   :root {
     --bg: #f3f6f8;
@@ -54,7 +54,7 @@ index.html
     font-size: 1.5rem; font-weight: 700; color: var(--ink);
     text-decoration: none; letter-spacing: 0.01em;
   }
-  nav { display: flex; gap: 8px; align-items: center; }
+  nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   nav a, nav button {
     font: inherit; color: var(--ink); background: none; border: 0;
     padding: 8px 12px; border-radius: 6px; text-decoration: none; cursor: pointer;
@@ -80,7 +80,12 @@ index.html
     cursor: pointer; text-decoration: none;
   }
   .btn:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .6; cursor: wait; }
   .btn.block { width: 100%; }
+  .btn.ghost {
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent); margin-left: 8px;
+  }
   .features {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 20px; margin-top: 56px;
@@ -89,19 +94,20 @@ index.html
   .feature h3 { margin: 0 0 6px; font-size: 1.05rem; }
   .feature p { margin: 0; color: var(--muted); }
 
-  .login-card {
-    max-width: 400px; margin: 0 auto; background: var(--surface);
+  .card {
+    max-width: 440px; margin: 0 auto; background: var(--surface);
     border: 1px solid var(--line); border-radius: 12px; padding: 32px 28px;
   }
-  .login-card h2 {
+  .card h2 {
     font-family: Georgia, "Times New Roman", serif; margin: 0 0 4px; font-size: 1.7rem;
   }
-  .login-card .sub { color: var(--muted); margin: 0 0 22px; }
+  .card .sub { color: var(--muted); margin: 0 0 22px; }
   label { display: block; font-weight: 600; margin: 16px 0 6px; font-size: 0.95rem; }
-  input[type="email"], input[type="password"], input[type="text"] {
+  input[type="email"], input[type="password"], input[type="text"], textarea {
     width: 100%; font: inherit; color: var(--ink); background: var(--bg);
     border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px;
   }
+  textarea { min-height: 130px; resize: vertical; }
   .pw-row { position: relative; }
   .pw-row input { padding-right: 70px; }
   .pw-toggle {
@@ -111,12 +117,15 @@ index.html
   }
   .row { display: flex; justify-content: space-between; align-items: center; margin: 14px 0 22px; font-size: 0.92rem; }
   .row label { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 400; }
-  .error { color: var(--danger); font-size: 0.92rem; min-height: 1.4em; margin: 12px 0 0; }
+  .msg { font-size: 0.92rem; min-height: 1.4em; margin: 12px 0 0; }
+  .msg.error { color: var(--danger); }
+  .msg.ok { color: var(--success); }
   .hint {
     margin-top: 20px; padding: 12px; border: 1px dashed var(--line);
     border-radius: 8px; font-size: 0.88rem; color: var(--muted);
   }
   .hint code { color: var(--ink); }
+  .hp { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; }
 
   .welcome h2 { font-family: Georgia, "Times New Roman", serif; font-size: 2rem; margin: 0 0 6px; }
   .welcome p { color: var(--muted); margin: 0 0 32px; }
@@ -146,19 +155,44 @@ index.html
   <section id="view-home" class="view wrap" hidden>
     <div class="hero">
       <h1>A quiet place to keep your work in order.</h1>
-      <p>Harbor is a small example site. Sign in to see a private dashboard that only appears once you're logged in.</p>
+      <p>Harbor is a small example site. Sign in to see your dashboard, or send us an enquiry.</p>
       <a class="btn" href="#/login">Sign in</a>
+      <a class="btn ghost" href="#/enquiry">Send an enquiry</a>
     </div>
     <div class="features">
       <div class="feature"><h3>Simple</h3><p>One HTML file. No build step, no dependencies.</p></div>
       <div class="feature"><h3>Responsive</h3><p>Works on phones, tablets and desktops, in light or dark mode.</p></div>
-      <div class="feature"><h3>Easy to extend</h3><p>Add pages by adding a section and a route in the script.</p></div>
+      <div class="feature"><h3>Enquiries by email</h3><p>Every enquiry is sent straight to your inbox.</p></div>
+    </div>
+  </section>
+
+  <!-- ENQUIRY -->
+  <section id="view-enquiry" class="view wrap" hidden>
+    <div class="card">
+      <h2>Send an enquiry</h2>
+      <p class="sub">Tell us what you need and we'll reply by email.</p>
+      <form id="enquiry-form" novalidate>
+        <label for="enq-name">Your name</label>
+        <input id="enq-name" name="name" type="text" autocomplete="name" required>
+
+        <label for="enq-email">Your email</label>
+        <input id="enq-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+
+        <label for="enq-message">Message</label>
+        <textarea id="enq-message" name="message" required></textarea>
+
+        <!-- Spam trap: real users never see or fill this -->
+        <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <button class="btn block" type="submit" id="enq-btn" style="margin-top:20px">Send enquiry</button>
+        <p class="msg" id="enq-msg" role="alert" aria-live="polite"></p>
+      </form>
     </div>
   </section>
 
   <!-- LOGIN -->
   <section id="view-login" class="view wrap" hidden>
-    <div class="login-card">
+    <div class="card">
       <h2>Sign in</h2>
       <p class="sub">Use your email and password to continue.</p>
       <form id="login-form" novalidate>
@@ -177,7 +211,7 @@ index.html
         </div>
 
         <button class="btn block" type="submit">Sign in</button>
-        <p class="error" id="error" role="alert" aria-live="polite"></p>
+        <p class="msg error" id="error" role="alert" aria-live="polite"></p>
       </form>
       <div class="hint">
         Demo account: <code>demo@example.com</code> / <code>password123</code>
@@ -203,6 +237,10 @@ index.html
 <footer>Harbor demo site</footer>
 
 <script>
+  // ====== CHANGE THIS to the email that should receive enquiries ======
+  const RECEIVER_EMAIL = "gokulkuppusam66@gmail.com";
+  // ===================================================================
+
   // Demo user (replace with a real server check in production)
   const DEMO_USER = { email: "demo@example.com", password: "password123", name: "Demo" };
 
@@ -231,7 +269,7 @@ index.html
   };
 
   // Routing
-  const views = ["home", "login", "dashboard"];
+  const views = ["home", "enquiry", "login", "dashboard"];
 
   function currentRoute() {
     const r = (location.hash.replace("#/", "") || "home");
@@ -249,6 +287,8 @@ index.html
 
     const nav = document.getElementById("nav");
     nav.innerHTML = "";
+    nav.append(link("Home", "#/home"));
+    nav.append(link("Enquiry", "#/enquiry"));
     if (user) {
       nav.append(link("Dashboard", "#/dashboard"));
       const out = document.createElement("button");
@@ -257,7 +297,6 @@ index.html
       nav.append(out);
       document.getElementById("greeting").textContent = "Welcome back, " + user.name;
     } else {
-      nav.append(link("Home", "#/home"));
       nav.append(link("Log in", "#/login", true));
     }
     document.title = "Harbor – " + route.charAt(0).toUpperCase() + route.slice(1);
@@ -274,7 +313,65 @@ index.html
 
   window.addEventListener("hashchange", render);
 
-  // Login form
+  // ---------- Enquiry form (emailed via FormSubmit) ----------
+  const enqForm = document.getElementById("enquiry-form");
+  const enqMsg = document.getElementById("enq-msg");
+  const enqBtn = document.getElementById("enq-btn");
+
+  enqForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    enqMsg.className = "msg error";
+
+    const name = document.getElementById("enq-name").value.trim();
+    const email = document.getElementById("enq-email").value.trim();
+    const message = document.getElementById("enq-message").value.trim();
+
+    if (!name || !email || !message) {
+      enqMsg.textContent = "Fill in your name, email and message.";
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      enqMsg.textContent = "Enter a valid email address.";
+      return;
+    }
+    if (enqForm.elements["_honey"].value) return; // bot caught
+
+    enqBtn.disabled = true;
+    enqBtn.textContent = "Sending...";
+    enqMsg.textContent = "";
+
+    try {
+      const res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RECEIVER_EMAIL), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          message: message,
+          _subject: "New enquiry from " + name,
+          _replyto: email,
+          _template: "table",
+          _captcha: "false"
+        })
+      });
+      const data = await res.json();
+      if (res.ok && (data.success === true || data.success === "true")) {
+        enqMsg.className = "msg ok";
+        enqMsg.textContent = "Enquiry sent. We'll reply to " + email + ".";
+        enqForm.reset();
+      } else {
+        throw new Error(data.message || "Request failed");
+      }
+    } catch (err) {
+      enqMsg.className = "msg error";
+      enqMsg.textContent = "Couldn't send your enquiry. Check your connection and try again.";
+    } finally {
+      enqBtn.disabled = false;
+      enqBtn.textContent = "Send enquiry";
+    }
+  });
+
+  // ---------- Login form ----------
   const form = document.getElementById("login-form");
   const errorEl = document.getElementById("error");
   const pw = document.getElementById("password");
