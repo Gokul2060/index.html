@@ -1,234 +1,324 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harbor – Simple Website with Login</title>
+<style>
+  :root {
+    --bg: #f3f6f8;
+    --surface: #ffffff;
+    --ink: #14232e;
+    --muted: #5b6b77;
+    --line: #d7e0e6;
+    --accent: #0b6e8a;
+    --accent-ink: #ffffff;
+    --danger: #b3261e;
+    --success: #1c6b3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1b23;
+      --surface: #16262f;
+      --ink: #e8f0f5;
+      --muted: #9db0bc;
+      --line: #27404d;
+      --accent: #4cb8d6;
+      --accent-ink: #072029;
+      --danger: #ff8a80;
+      --success: #7bd39a;
     }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  a { color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f4f6f8;
-    }
+  header { background: var(--surface); border-bottom: 1px solid var(--line); }
+  .bar {
+    max-width: 960px; margin: 0 auto; padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .brand {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem; font-weight: 700; color: var(--ink);
+    text-decoration: none; letter-spacing: 0.01em;
+  }
+  nav { display: flex; gap: 8px; align-items: center; }
+  nav a, nav button {
+    font: inherit; color: var(--ink); background: none; border: 0;
+    padding: 8px 12px; border-radius: 6px; text-decoration: none; cursor: pointer;
+  }
+  nav a:hover, nav button:hover { background: var(--bg); }
+  nav a.primary { background: var(--accent); color: var(--accent-ink); }
+  nav a.primary:hover { filter: brightness(1.08); }
 
-    .login-container {
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-    }
+  main { flex: 1; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 48px 20px; }
+  .view[hidden] { display: none; }
 
-    .login-box {
-      background: #ffffff;
-      padding: 35px;
-      border-radius: 12px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    }
+  .hero h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15;
+    margin: 0 0 16px; max-width: 18ch;
+  }
+  .hero p { color: var(--muted); font-size: 1.1rem; max-width: 52ch; margin: 0 0 28px; }
+  .btn {
+    display: inline-block; font: inherit; font-weight: 600;
+    background: var(--accent); color: var(--accent-ink);
+    border: 0; border-radius: 8px; padding: 12px 22px;
+    cursor: pointer; text-decoration: none;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.block { width: 100%; }
+  .features {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px; margin-top: 56px;
+  }
+  .feature { border-top: 3px solid var(--accent); padding-top: 12px; }
+  .feature h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .feature p { margin: 0; color: var(--muted); }
 
-    .login-box h2 {
-      text-align: center;
-      margin-bottom: 8px;
-      color: #222;
-    }
+  .login-card {
+    max-width: 400px; margin: 0 auto; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 12px; padding: 32px 28px;
+  }
+  .login-card h2 {
+    font-family: Georgia, "Times New Roman", serif; margin: 0 0 4px; font-size: 1.7rem;
+  }
+  .login-card .sub { color: var(--muted); margin: 0 0 22px; }
+  label { display: block; font-weight: 600; margin: 16px 0 6px; font-size: 0.95rem; }
+  input[type="email"], input[type="password"], input[type="text"] {
+    width: 100%; font: inherit; color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px;
+  }
+  .pw-row { position: relative; }
+  .pw-row input { padding-right: 70px; }
+  .pw-toggle {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    font: inherit; font-size: 0.85rem; color: var(--accent);
+    background: none; border: 0; padding: 6px 8px; cursor: pointer;
+  }
+  .row { display: flex; justify-content: space-between; align-items: center; margin: 14px 0 22px; font-size: 0.92rem; }
+  .row label { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 400; }
+  .error { color: var(--danger); font-size: 0.92rem; min-height: 1.4em; margin: 12px 0 0; }
+  .hint {
+    margin-top: 20px; padding: 12px; border: 1px dashed var(--line);
+    border-radius: 8px; font-size: 0.88rem; color: var(--muted);
+  }
+  .hint code { color: var(--ink); }
 
-    .login-box .subtitle {
-      text-align: center;
-      color: #777;
-      font-size: 14px;
-      margin-bottom: 28px;
-    }
+  .welcome h2 { font-family: Georgia, "Times New Roman", serif; font-size: 2rem; margin: 0 0 6px; }
+  .welcome p { color: var(--muted); margin: 0 0 32px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+  .stat b { display: block; font-size: 1.8rem; }
+  .stat span { color: var(--muted); font-size: 0.92rem; }
+  .notice { color: var(--success); font-weight: 600; margin-top: 24px; }
 
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #ddd;
-      border-radius: 7px;
-      font-size: 15px;
-      outline: none;
-      transition: 0.2s;
-    }
-
-    .form-group input:focus {
-      border-color: #333;
-      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
-    }
-
-    .password-wrapper {
-      position: relative;
-    }
-
-    .password-wrapper input {
-      padding-right: 65px;
-    }
-
-    .show-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: none;
-      color: #555;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .login-button {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: 7px;
-      background: #222;
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .login-button:hover {
-      background: #000;
-    }
-
-    .login-button:active {
-      transform: scale(0.98);
-    }
-
-    .message {
-      margin-top: 15px;
-      text-align: center;
-      font-size: 14px;
-      display: none;
-    }
-
-    .message.error {
-      color: #d93025;
-    }
-
-    .message.success {
-      color: #188038;
-    }
-  </style>
+  footer {
+    border-top: 1px solid var(--line); text-align: center;
+    color: var(--muted); font-size: 0.88rem; padding: 20px;
+  }
+</style>
 </head>
-
 <body>
 
-  <div class="login-container">
-    <div class="login-box">
-
-      <h2>Welcome Back</h2>
-      <p class="subtitle">Please login to your account</p>
-
-      <form id="loginForm">
-
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            placeholder="Enter your username"
-            autocomplete="username"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-
-          <div class="password-wrapper">
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              autocomplete="current-password"
-            >
-
-            <button
-              type="button"
-              class="show-password"
-              id="togglePassword"
-            >
-              Show
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="login-button">
-          Login
-        </button>
-
-        <div id="message" class="message"></div>
-
-      </form>
-
-    </div>
+<header>
+  <div class="bar">
+    <a class="brand" href="#/home">Harbor</a>
+    <nav id="nav" aria-label="Main"></nav>
   </div>
+</header>
 
-  <script>
-    const loginForm = document.getElementById("loginForm");
-    const username = document.getElementById("username");
-    const password = document.getElementById("password");
-    const message = document.getElementById("message");
-    const togglePassword = document.getElementById("togglePassword");
+<main>
+  <!-- HOME -->
+  <section id="view-home" class="view wrap" hidden>
+    <div class="hero">
+      <h1>A quiet place to keep your work in order.</h1>
+      <p>Harbor is a small example site. Sign in to see a private dashboard that only appears once you're logged in.</p>
+      <a class="btn" href="#/login">Sign in</a>
+    </div>
+    <div class="features">
+      <div class="feature"><h3>Simple</h3><p>One HTML file. No build step, no dependencies.</p></div>
+      <div class="feature"><h3>Responsive</h3><p>Works on phones, tablets and desktops, in light or dark mode.</p></div>
+      <div class="feature"><h3>Easy to extend</h3><p>Add pages by adding a section and a route in the script.</p></div>
+    </div>
+  </section>
 
-    // Show / Hide password
-    togglePassword.addEventListener("click", () => {
-      if (password.type === "password") {
-        password.type = "text";
-        togglePassword.textContent = "Hide";
-      } else {
-        password.type = "password";
-        togglePassword.textContent = "Show";
-      }
-    });
+  <!-- LOGIN -->
+  <section id="view-login" class="view wrap" hidden>
+    <div class="login-card">
+      <h2>Sign in</h2>
+      <p class="sub">Use your email and password to continue.</p>
+      <form id="login-form" novalidate>
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="username" placeholder="you@example.com" required>
 
-    // Login validation
-    loginForm.addEventListener("submit", (event) => {
-      event.preventDefault();
+        <label for="password">Password</label>
+        <div class="pw-row">
+          <input id="password" type="password" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Show password">Show</button>
+        </div>
 
-      const usernameValue = username.value.trim();
-      const passwordValue = password.value.trim();
+        <div class="row">
+          <label><input type="checkbox" id="remember"> Remember me</label>
+          <a href="#/login" id="forgot">Forgot password?</a>
+        </div>
 
-      message.style.display = "block";
+        <button class="btn block" type="submit">Sign in</button>
+        <p class="error" id="error" role="alert" aria-live="polite"></p>
+      </form>
+      <div class="hint">
+        Demo account: <code>demo@example.com</code> / <code>password123</code>
+      </div>
+    </div>
+  </section>
 
-      if (!usernameValue || !passwordValue) {
-        message.textContent = "Please enter username and password.";
-        message.className = "message error";
-        return;
-      }
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="view wrap" hidden>
+    <div class="welcome">
+      <h2 id="greeting">Welcome back</h2>
+      <p>Here's a quick look at your account.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>12</b><span>Open tasks</span></div>
+      <div class="stat"><b>4</b><span>Due this week</span></div>
+      <div class="stat"><b>38</b><span>Completed this month</span></div>
+    </div>
+    <p class="notice">You're signed in.</p>
+  </section>
+</main>
 
-      // Demo login
-      if (usernameValue === "admin" && passwordValue === "1234") {
-        message.textContent = "Login successful!";
-        message.className = "message success";
-      } else {
-        message.textContent = "Invalid username or password.";
-        message.className = "message error";
-      }
-    });
-  </script>
+<footer>Harbor demo site</footer>
 
+<script>
+  // Demo user (replace with a real server check in production)
+  const DEMO_USER = { email: "demo@example.com", password: "password123", name: "Demo" };
+
+  // Session helpers (fall back to memory if storage is unavailable)
+  let memorySession = null;
+  const session = {
+    get() {
+      try {
+        const raw = sessionStorage.getItem("harbor-user") || localStorage.getItem("harbor-user");
+        return raw ? JSON.parse(raw) : memorySession;
+      } catch (e) { return memorySession; }
+    },
+    set(user, remember) {
+      memorySession = user;
+      try {
+        (remember ? localStorage : sessionStorage).setItem("harbor-user", JSON.stringify(user));
+      } catch (e) {}
+    },
+    clear() {
+      memorySession = null;
+      try {
+        sessionStorage.removeItem("harbor-user");
+        localStorage.removeItem("harbor-user");
+      } catch (e) {}
+    }
+  };
+
+  // Routing
+  const views = ["home", "login", "dashboard"];
+
+  function currentRoute() {
+    const r = (location.hash.replace("#/", "") || "home");
+    return views.includes(r) ? r : "home";
+  }
+
+  function render() {
+    let route = currentRoute();
+    const user = session.get();
+
+    if (route === "dashboard" && !user) route = "login";
+    if (route === "login" && user) route = "dashboard";
+
+    views.forEach(v => document.getElementById("view-" + v).hidden = (v !== route));
+
+    const nav = document.getElementById("nav");
+    nav.innerHTML = "";
+    if (user) {
+      nav.append(link("Dashboard", "#/dashboard"));
+      const out = document.createElement("button");
+      out.textContent = "Log out";
+      out.onclick = () => { session.clear(); location.hash = "#/home"; render(); };
+      nav.append(out);
+      document.getElementById("greeting").textContent = "Welcome back, " + user.name;
+    } else {
+      nav.append(link("Home", "#/home"));
+      nav.append(link("Log in", "#/login", true));
+    }
+    document.title = "Harbor – " + route.charAt(0).toUpperCase() + route.slice(1);
+    window.scrollTo(0, 0);
+  }
+
+  function link(text, href, primary) {
+    const a = document.createElement("a");
+    a.textContent = text;
+    a.href = href;
+    if (primary) a.className = "primary";
+    return a;
+  }
+
+  window.addEventListener("hashchange", render);
+
+  // Login form
+  const form = document.getElementById("login-form");
+  const errorEl = document.getElementById("error");
+  const pw = document.getElementById("password");
+
+  document.getElementById("pw-toggle").addEventListener("click", (e) => {
+    const show = pw.type === "password";
+    pw.type = show ? "text" : "password";
+    e.target.textContent = show ? "Hide" : "Show";
+    e.target.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  });
+
+  document.getElementById("forgot").addEventListener("click", (e) => {
+    e.preventDefault();
+    errorEl.style.color = "var(--muted)";
+    errorEl.textContent = "Password reset isn't set up in this demo.";
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    errorEl.style.color = "var(--danger)";
+    const email = document.getElementById("email").value.trim().toLowerCase();
+    const password = pw.value;
+
+    if (!email || !password) {
+      errorEl.textContent = "Enter your email and password.";
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      errorEl.textContent = "Enter a valid email address.";
+      return;
+    }
+    if (email === DEMO_USER.email && password === DEMO_USER.password) {
+      errorEl.textContent = "";
+      session.set({ email, name: DEMO_USER.name }, document.getElementById("remember").checked);
+      form.reset();
+      location.hash = "#/dashboard";
+      render();
+    } else {
+      errorEl.textContent = "Email or password is incorrect. Check both and try again.";
+      pw.value = "";
+      pw.focus();
+    }
+  });
+
+  render();
+</script>
 </body>
 </html>
-```
