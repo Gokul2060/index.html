@@ -238,7 +238,7 @@ index.html
 
 <script>
   // ====== Email that receives enquiries ======
-  const RECEIVER_EMAIL = "gokulkuppusam66@gmail.com";
+  const RECEIVER_EMAIL = "gokulkuppusamy66@gmail.com";
   // ===========================================
 
   // Demo user (replace with a real server check in production)
