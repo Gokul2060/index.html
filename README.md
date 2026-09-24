@@ -237,9 +237,9 @@ index.html
 <footer>Harbor demo site</footer>
 
 <script>
-  // ====== CHANGE THIS to the email that should receive enquiries ======
+  // ====== Email that receives enquiries ======
   const RECEIVER_EMAIL = "gokulkuppusam66@gmail.com";
-  // ===================================================================
+  // ===========================================
 
   // Demo user (replace with a real server check in production)
   const DEMO_USER = { email: "demo@example.com", password: "password123", name: "Demo" };
@@ -334,37 +334,59 @@ index.html
       enqMsg.textContent = "Enter a valid email address.";
       return;
     }
-    if (enqForm.elements["_honey"].value) return; // bot caught
+    if (enqForm.elements["_honey"].value) return;
 
     enqBtn.disabled = true;
     enqBtn.textContent = "Sending...";
     enqMsg.textContent = "";
 
+    const payload = {
+      name: name,
+      email: email,
+      message: message,
+      _subject: "New enquiry from " + name,
+      _replyto: email,
+      _template: "table",
+      _captcha: "false"
+    };
+
     try {
-      const res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RECEIVER_EMAIL), {
+      const res = await fetch("https://formsubmit.co/ajax/" + RECEIVER_EMAIL, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({
-          name: name,
-          email: email,
-          message: message,
-          _subject: "New enquiry from " + name,
-          _replyto: email,
-          _template: "table",
-          _captcha: "false"
-        })
+        body: JSON.stringify(payload)
       });
-      const data = await res.json();
+
+      let data = {};
+      try { data = await res.json(); } catch (_) {}
+
       if (res.ok && (data.success === true || data.success === "true")) {
         enqMsg.className = "msg ok";
         enqMsg.textContent = "Enquiry sent. We'll reply to " + email + ".";
         enqForm.reset();
       } else {
-        throw new Error(data.message || "Request failed");
+        enqMsg.className = "msg error";
+        enqMsg.textContent = data.message
+          ? "Not sent: " + data.message
+          : "Not sent. Check your inbox (and spam) for the FormSubmit activation email and click its link.";
       }
     } catch (err) {
-      enqMsg.className = "msg error";
-      enqMsg.textContent = "Couldn't send your enquiry. Check your connection and try again.";
+      // Network/CORS failure: fall back to a normal form post in a new tab
+      const f = document.createElement("form");
+      f.method = "POST";
+      f.action = "https://formsubmit.co/" + RECEIVER_EMAIL;
+      f.target = "_blank";
+      Object.entries(payload).forEach(([k, v]) => {
+        const i = document.createElement("input");
+        i.type = "hidden"; i.name = k; i.value = v;
+        f.appendChild(i);
+      });
+      document.body.appendChild(f);
+      f.submit();
+      f.remove();
+      enqMsg.className = "msg ok";
+      enqMsg.textContent = "Your enquiry was submitted in a new tab. Close it when it finishes.";
+      enqForm.reset();
     } finally {
       enqBtn.disabled = false;
       enqBtn.textContent = "Send enquiry";
